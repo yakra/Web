@@ -14,9 +14,12 @@
  */
     require $_SERVER['DOCUMENT_ROOT']."/lib/tmphpfuncs.php";
 
-    if(!array_key_exists('r', $_GET) && !array_key_exists('sys', $_GET) && !array_key_exists('rg', $_GET) && !array_key_exists('rte', $_GET))
-    {
-        echo "Missing parameter: one of r, rg, sys, or rte MUST be set.";
+    if (!array_key_exists('v', $_GET) &&
+        !array_key_exists('r', $_GET) &&
+	!array_key_exists('sys', $_GET) &&
+	!array_key_exists('rg', $_GET) &&
+	!array_key_exists('rte', $_GET)) {
+        echo "Missing parameter: one of v, r, rg, sys, or rte MUST be set.";
         http_response_code(400);
         exit();
     }
@@ -205,98 +208,24 @@ SQL;
         // insert custom color code if needed
         tm_generate_custom_colors_array();
 	echo "mapStatus = mapStates.MAPVIEW;\n";
-    }
-    
-    function select_single_route ()
-    {
-        $routeparam = strtolower($_GET['r']);
-
-        if (array_key_exists('u', $_GET)) {
-            $tmuser = $_GET['u'];
-        } else {
-            $tmuser = "";
-        }
-        
-        if ($routeparam != "") {
-            // select all waypoints matching the root given in the "r=" query string parameter
-            $sql_command = "SELECT pointName, latitude, longitude FROM waypoints WHERE root = '" . $routeparam . "';";
-            $res = tmdb_query($sql_command);
-            $pointnum = 0;
-            while ($row = $res->fetch_assoc()) {
-                echo "waypoints[$pointnum] = new Waypoint(\"{$row['pointName']}\",{$row['latitude']},{$row['longitude']}); // line 216\n";
-		if ($row['pointName'][0] === '+') {
-                    $pointnum = $pointnum + 1;
-		    continue;
-		}
-		$sql_command = "SELECT DISTINCT w.root, r.route, r.region, r.banner, r.abbrev, r.city FROM waypoints AS w LEFT JOIN routes AS r ON w.root = r.root WHERE w.latitude='".$row['latitude']."' AND w.longitude='".$row['longitude']."';";
-		$res2 = tmdb_query($sql_command);
-		if ($res2->num_rows > 1) {
-		   echo "waypoints[$pointnum].intersecting = new Array();\n";
-	           while ($match_row = $res2->fetch_assoc()) {
-		       if ($match_row['root'] != $routeparam) {	 
-	   	           echo "waypoints[$pointnum].intersecting.push(new Route(\"".$match_row['root']."\",\"".$match_row['route']."\",\"".$match_row['region']."\",\"".$match_row['banner']."\",\"".$match_row['abbrev']."\",\"".$match_row['city']."\"));\n";
-		       }
-		   }
-                }
-		$res2->free();
-                $pointnum = $pointnum + 1;
-            }
-            $res->free();
-        } else {
-            // nothing to select waypoints, we're done
-            echo "return;\n";
-        }
-        // check for query string parameter for traveler clinched mapping of route
-        if ($tmuser != "") {
-            echo "traveler = '$tmuser';\n";
-            if ($routeparam != "") {
-                // retrieve list of segments for this route
-                echo "// SQL: select segmentId from segments where root = '" . $routeparam . "';\n";
-                $sql_command = "SELECT segmentId FROM segments WHERE root = '$routeparam';";
-                $res = tmdb_query($sql_command);
-                $segmentIndex = 0;
-		echo "segments = [";
-		$comma_after_first = "";
-                while ($row = $res->fetch_assoc()) {
-                    echo $comma_after_first."\n".$row['segmentId'];
-		    $comma_after_first = ",";
-                    $segmentIndex = $segmentIndex + 1;
-                }
-                $res->free();
-		echo "\n];\n";
-                $sql_command = <<<SQL
-SELECT 
-  segments.segmentId 
-FROM segments 
-  RIGHT JOIN clinched ON segments.segmentId = clinched.segmentId 
-WHERE segments.root='$routeparam' AND clinched.traveler = '$tmuser';
-SQL;
-                $res = tmdb_query($sql_command);
-                $segmentIndex = 0;
-		$comma_after_first = "";
-		echo "clinched = [";
-                while ($row = $res->fetch_assoc()) {
-                    echo $comma_after_first."\n".$row['segmentId'];
-		    $comma_after_first = ",";
-                    $segmentIndex = $segmentIndex + 1;
-                }
-                $res->free();
-		echo "\n];\n";
-            }
-            echo "mapClinched = true;\n";
-	    echo "mapStatus = mapStates.HB_ROUTE;\n";
-        }
+	echo "genEdges = true;\n";
     }
 ?>
 
 function waypointsFromSQL() {
     <?php
-        if (array_key_exists('r', $_GET)) {
-	   select_single_route();
+        if (array_key_exists('v', $_GET)) {
+            if (array_key_exists('u', $_GET)) {
+                $tmuser = $_GET['u'];
+                echo "traveler = '$tmuser';\n";
+	    }
+	    echo "showAllInView = true;\n";
+	}
+        else if (array_key_exists('r', $_GET)) {
+	    //select_single_route();
 	}
         else {
 	    select_route_set();
         }
     ?>
-    genEdges = true;
 }

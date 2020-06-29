@@ -139,10 +139,10 @@ function tm_region_select($multiple) {
     global $tmdb;
 
     if ($multiple) {
-        echo "<select name=\"rg[]\" multiple=\"multiple\">\n";
+        echo "<select id=\"regions\" name=\"rg[]\" multiple=\"multiple\">\n";
     }
     else {
-        echo "<select name=\"rg\">\n";
+        echo "<select id=\"region\" name=\"rg\">\n";
     }
     $regions = tm_qs_multi_or_comma_to_array("rg");
     echo "<option value=\"null\">[None Selected]</option>\n";
@@ -183,10 +183,10 @@ function tm_system_select($multiple) {
     global $tmdb;
 
     if ($multiple) {
-        echo "<select name=\"sys[]\" multiple=\"multiple\">\n";
+        echo "<select id=\"systems\" name=\"sys[]\" multiple=\"multiple\">\n";
     }
     else {
-        echo "<select name=\"sys\">\n";
+        echo "<select id=\"system\" name=\"sys\">\n";
     }
     $systems = tm_qs_multi_or_comma_to_array("sys");
     echo "<option value=\"null\">[None Selected]</option>\n";
@@ -206,7 +206,7 @@ function tm_system_select($multiple) {
 function tm_user_select() {
     global $tmdb;
     global $tmuser;
-    echo "<select name=\"u\">\n";
+    echo "<select name=\"u\" id=\"tmuserselect\">\n";
     echo "<option value=\"null\">[None Selected]</option>\n";
     $res = tmdb_query("SELECT DISTINCT traveler FROM clinchedOverallMileageByRegion ORDER by traveler ASC;");
     while ($row = $res->fetch_assoc()) {
@@ -226,7 +226,7 @@ function tm_user_select() {
 function tm_units_select() {
     global $tmunits;
     global $tm_supported_units;
-    echo "<select name=\"units\">\n";
+    echo "<select name=\"units\" id=\"tmunitsselect\">\n";
     foreach ($tm_supported_units as $unit => $conv) {
         echo "<option value=\"".$unit."\"";
         if ($unit == $tmunits) {
@@ -246,6 +246,13 @@ function tm_user_select_form($action = "\".\"") {
     tm_units_select();
     echo "<input type=\"submit\" value=\"Apply\" />\n";
     echo "</p></form>\n";
+}
+
+// function to generate the current position checkbox and label
+function tm_position_checkbox() {
+
+    echo "<input id=\"posCheckbox\" type=\"checkbox\" name=\"posCheckbox\" checked onclick=\"posCheckboxChanged();\" />&nbsp;<span id=\"posCheckboxLabel\">Mark Current Location</span>";
+
 }
 
 // function to get a count from a table of rows matching a "where" clause
@@ -354,6 +361,18 @@ function tm_generate_custom_colors_array() {
     }
 }
 
+// function to generate hsl color specifications based on an amount
+// traveled and a total distance, should be kept consistent with
+// colorForAmountTraveled in tmjsfuncs.js
+function tm_color_for_amount_traveled($traveled, $total) {
+
+    if ($total == 0) return "#ffffff";
+    $l = "80%";
+    if ($traveled == 0) $l = "70%";
+    if (number_format($traveled, 2) == number_format($total, 2)) $l = "70%";
+    return "hsl( " . (240*$traveled/$total) . ", 70%, " . $l . ")";
+}
+
 // get the timestamp of most recent DB update
 function tm_update_time() {
     global $tmdb;
@@ -460,13 +479,14 @@ echo <<<END
   <link rel="stylesheet" href="/leaflet-1.5.1/leaflet.css" />
   <script src="/leaflet-1.5.1/leaflet.js"></script>
   <script src="/leaflet-1.5.1/leaflet-providers.js"></script>
-  <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+  <script type="text/javascript" src="https://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
   <!-- jQuery -->
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <!-- TableSorter -->
   <script src="/lib/jquery.tablesorter.min.js" type="text/javascript"></script>
-
+  <!-- clipboard.js -->
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 END;
   echo "<!-- tm_common_js from tmphpfuncs.php END -->\n";
 }

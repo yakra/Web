@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/css/travelMapping.css"/>
     <link rel="shortcut icon" type="image/png" href="/favicon.png">
     <!-- jQuery -->
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
     <!-- TableSorter -->
     <script src="/lib/jquery.tablesorter.min.js"></script>
     <title>Traveler Statistics</title>
@@ -79,7 +79,8 @@ SQL;
         $res = tmdb_query($sql);
         $row = tm_fetch_user_row_with_rank($res, 'clinchedMileage');
         echo "<td>{$row['traveler']}</td>";
-        echo "<td>".tm_convert_distance($row['clinchedMileage'])." of ".tm_convert_distance($totalMileage)." ";
+        $style = 'style="background-color: '.tm_color_for_amount_traveled($row['clinchedMileage'],$totalMileage).';"';
+        echo "<td ".$style.">".tm_convert_distance($row['clinchedMileage'])." of ".tm_convert_distance($totalMileage)." ";
 	tm_echo_units();
 	echo " ({$row['percentage']}%)</td>";
         echo "<td>{$row['rank']}</td>";
@@ -94,7 +95,8 @@ SQL;
 SQL;
         $res = tmdb_query($sql);
         $row = tm_fetch_user_row_with_rank($res, 'clinchedMileage');
-        echo "<td>".tm_convert_distance($row['clinchedMileage'])." of ".tm_convert_distance($totalPreviewMileage)." ";
+        $style = 'style="background-color: '.tm_color_for_amount_traveled($row['clinchedMileage'],$totalPreviewMileage).';"';
+        echo "<td ".$style.">".tm_convert_distance($row['clinchedMileage'])." of ".tm_convert_distance($totalPreviewMileage)." ";
 	tm_echo_units();
 	echo " ({$row['percentage']}%)</td>";
         echo "<td>{$row['rank']}</td>";
@@ -138,9 +140,11 @@ SQL;
                         $highlight = '';
                     }
 		    $print_distance = tm_convert_distance($row['clinchedMileage']);
+		    $style = 'style="background-color: '.tm_color_for_amount_traveled($row['clinchedMileage'],$totalMileage).';"';
+
                     echo <<<HTML
                 <tr class="$highlight" onClick="window.document.location='/user?u={$row['traveler']}';">
-                <td>{$rank}</td><td>{$row['traveler']}</td><td>{$print_distance}</td><td>{$row['percentage']}%</td>
+                <td>{$rank}</td><td>{$row['traveler']}</td><td {$style}>{$print_distance}</td><td {$style}>{$row['percentage']}%</td>
                 </tr>
 HTML;
                     $rank++;
@@ -183,9 +187,10 @@ SQL;
                         $highlight = '';
                     }
 		    $print_distance = tm_convert_distance($row['clinchedMileage']);
+		    $style = 'style="background-color: '.tm_color_for_amount_traveled($row['clinchedMileage'],$totalPreviewMileage).';"';
                     echo <<<HTML
                 <tr class="$highlight" onClick="window.document.location='/user?u={$row['traveler']}';">
-                <td>{$rank}</td><td>{$row['traveler']}</td><td>{$print_distance}</td><td>{$row['percentage']}%</td>
+                <td>{$rank}</td><td>{$row['traveler']}</td><td {$style}>{$print_distance}</td><td {$style}>{$row['percentage']}%</td>
                 </tr>
 HTML;
                     $rank++;

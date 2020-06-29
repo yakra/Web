@@ -200,7 +200,8 @@ SQL;
 	    } else {
 		$rank = "N/A";
 	    }
-            echo "<tr style=\"background-color:#EEEEFF\"><td>Distance Traveled</td><td>".tm_convert_distance($row['clinchedMileage'])." of ".tm_convert_distance($system_mileage)." ".$tmunits." (".sprintf('%0.2f',$percentage)."%) Rank: ".$rank."</td></tr>";
+	    $style = 'style="background-color: '.tm_color_for_amount_traveled($row['clinchedMileage'],$system_mileage).';"';
+            echo "<tr><td>Distance Traveled</td><td ".$style.">".tm_convert_distance($row['clinchedMileage'])." of ".tm_convert_distance($system_mileage)." ".$tmunits." (".sprintf('%0.2f',$percentage)."%) Rank: ".$rank."</td></tr>";
 
             //Second, fetch routes clinched/driven
             if ($region == "") {
@@ -294,27 +295,15 @@ SQL;
 		}
 		$res->free();
             }
-            echo "<tr onClick=\"" . $link . "\"><td>Routes Traveled</td><td>" . $driven   . " of " . $totalRoutes . " (" . round($driven   / $totalRoutes * 100, 2) . "%) Rank: {$drivenRank}</td></tr>\n";
-	    echo "<tr onClick=\"" . $link . "\"><td>Routes Clinched</td><td>" . $clinched . " of " . $totalRoutes . " (" . round($clinched / $totalRoutes * 100, 2) . "%) Rank: {$clinchedRank}</td></tr>\n";
+	    $style = 'style="background-color: '.tm_color_for_amount_traveled($driven,$totalRoutes).';"';
+            echo "<tr onClick=\"" . $link . "\"><td>Routes Traveled</td><td ".$style.">" . $driven   . " of " . $totalRoutes . " (" . round($driven   / $totalRoutes * 100, 2) . "%) Rank: {$drivenRank}</td></tr>\n";
+	    $style = 'style="background-color: '.tm_color_for_amount_traveled($clinched,$totalRoutes).';"';
+	    echo "<tr onClick=\"" . $link . "\"><td>Routes Clinched</td><td ".$style.">" . $clinched . " of " . $totalRoutes . " (" . round($clinched / $totalRoutes * 100, 2) . "%) Rank: {$clinchedRank}</td></tr>\n";
             ?>
             </tbody>
         </table>
         <?php
         if($region == "") {
-            echo <<<HTML
-                <table class="gratable tablesorter" id="regionsTable">
-                    <caption>TIP: Click on a column head to sort. Hold SHIFT in order to sort by multiple columns.</caption>
-                    <thead>
-                    <tr><th colspan="4">Statistics by Region</th></tr>
-                    <tr>
-                        <th class="sortable">Region</th>
-                        <th class="sortable">Clinched ({$tmunits})</th>
-                        <th class="sortable">Total ({$tmunits})</th>
-                        <th class="sortable">%</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-HTML;
             $sql_command = <<<SQL
             SELECT
               miByRegion.region,
@@ -328,11 +317,28 @@ HTML;
             ORDER BY percentage DESC ;
 SQL;
             $res = tmdb_query($sql_command);
-            while ($row = $res->fetch_assoc()) {
+	    if ($res->num_rows > 1) {
+              echo <<<HTML
+                <table class="gratable tablesorter" id="regionsTable">
+                    <caption>TIP: Click on a column head to sort. Hold SHIFT in order to sort by multiple columns.</caption>
+                    <thead>
+                    <tr><th colspan="4">Statistics by Region</th></tr>
+                    <tr>
+                        <th class="sortable">Region</th>
+                        <th class="sortable">Clinched ({$tmunits})</th>
+                        <th class="sortable">Total ({$tmunits})</th>
+                        <th class="sortable">%</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+HTML;
+              while ($row = $res->fetch_assoc()) {
 		$clinched = tm_convert_distance($row['clinchedMileage']);
 		$total = tm_convert_distance($row['totalMileage']);
+	    	$style = 'style="background-color: '.tm_color_for_amount_traveled($row['clinchedMileage'],$row['totalMileage']).';"';
+		
                 echo <<<HTML
-                <tr onclick='window.open("/user/system.php?u={$tmuser}&sys={$system}&rg={$row['region']}")'>
+                <tr onclick='window.open("/user/system.php?u={$tmuser}&sys={$system}&rg={$row['region']}")' {$style}>
                     <td>{$row['region']}</td>
                     <td>{$clinched}</td>
                     <td>{$total}</td>
@@ -340,8 +346,9 @@ SQL;
                 </tr>
 HTML;
             }
-            $res->free();
             echo "</tbody></table>";
+	  }
+          $res->free();
         }
         ?>
         <table class="gratable tablesorter" id="routeTable">
@@ -385,12 +392,13 @@ HTML;
 
             while ($row = $res->fetch_assoc()) {
                 if ($region == "") {
-                    $link = "window.open('/user/mapview.php?u=" . $tmuser . "&amp;rte=" . $row['route'] . "&amp;sys=" . $system . "')";
+                    $link = "window.open('/user/mapview.php?u=" . $tmuser . "&amp;cr=" . $row['root'] . "')";
                 } else {
                     $link = "window.open('/hb?u=" . $tmuser . "&amp;r=" . $row['root'] . "')";
                 }
 
-                echo "<tr onClick=\"" . $link . "\">";
+	    	$style = 'style="background-color: '.tm_color_for_amount_traveled($row['clinchedMileage'],$row['totalMileage']).';"';
+                echo "<tr onClick=\"" . $link . "\" ".$style.">";
                 echo "<td>" . $row['route'] . "</td>";
                 echo "<td width='0'>" . $row['routeNum'] . "</td>";
                 echo "<td>" . $row['banner'] . "</td>";
