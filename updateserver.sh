@@ -4,9 +4,9 @@
 #
 set -e
 shopt -s nullglob
-server=noreaster.teresco.org
-basedir=/home/www/
-rootdir=tmtest
+#server=noreaster.teresco.org
+basedir=/var/www/html
+rootdir=
 shieldsdir=
 wpteditdir=
 otherdirs="user lib devel devel/manual hb css graphs"
@@ -32,8 +32,8 @@ while (( "$#" )); do
 done
 
 echo "Updating to $server:$basedir$rootdir, directories . $otherdirs $shieldsdir $wpteditdir"
-scp *.php favicon.* $server:$basedir$rootdir
+cp *.{php,js,svg,css,png,gif} $basedir$rootdir
 for dir in $otherdirs $shieldsdir $wpteditdir; do
-    ssh $server mkdir -p $basedir$rootdir/$dir
-    scp $dir/*.{php,js,svg,css,png,gif} $server:$basedir$rootdir/$dir
+    mkdir -p $basedir$rootdir/$dir
+    cp $dir/*.{php,js,svg,css,png,gif} $basedir$rootdir/$dir
 done
