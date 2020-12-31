@@ -46,6 +46,11 @@ connerr2 {color: #48C0A0;}
   <li><a href="#datacheck">Highway data check list</a></li>
   <li><a href="#falsepositive">Marking errors false positive (FP)</a></li>
   <li><a href="#concurrency">Concurrency check</a></li>
+  <ul>
+    <li><a href="#concurrencymapview">Load graph with mapview</a></li>
+    <li><a href="#concurrencyhdx">Load graph with Highway Data Examiner (HDX)</a></li>
+    <li><a href="#concurrencycheck">Check for broken concurrencies</a></li>
+  </ul>
   <li><a href="#nearmisspoint">Near-miss points</a></li>
   <li><a href="#nmpfp">Marking NMPs false positive FP</a></li>
 </ul>
@@ -60,7 +65,7 @@ Data errors</p>
   After manual changes within the editor field, the data check is done on the next editor action, e.g. when pressing the <code>Load</code> button.
   </br>
   </br>
-  Check the table for errors before saving the wpt file. Fix unintended errors or mark intended errors <a href="#falsepositive">false positive</a>.
+  Check the table for errors before saving the <code>.wpt</code> file. Fix unintended errors or mark intended errors <a href="#falsepositive">false positive</a>.
   </br>
   </br>
   Note: Not all data errors are detected by the WPT file editor, see below: <green>supported</green>,
@@ -140,6 +145,13 @@ Data errors</p>
     <td><red>NO</red></td>
   </tr>
   <tr valign="top">
+    <td><a name="INTERSTATE_NO_HYPHEN"></a><a style="text-decoration:none" href="#INTERSTATE_NO_HYPHEN">&#x1f517</a></td>
+    <td>INTERSTATE_NO_HYPHEN</td>
+    <td>Label looks like an Interstate without a hyphen between the <code>I</code> and numerals.</td>
+    <td><yellow>NO</yellow></td>
+    <td><red>NO</red></td>
+  </tr>
+  <tr valign="top">
     <td><a name="INVALID_FINAL_CHAR"></a><a style="text-decoration:none" href="#INVALID_FINAL_CHAR">&#x1f517</a></td>
     <td>INVALID_FINAL_CHAR</td>
     <td>Disallowed character at end of label</td>
@@ -156,7 +168,7 @@ Data errors</p>
   <tr valign="top">
     <td><a name="LABEL_INVALID_CHAR"></a><a style="text-decoration:none" href="#LABEL_INVALID_CHAR">&#x1f517</a></td>
     <td>LABEL_INVALID_CHAR</td>
-    <td>Label contains characters not allowed in labels, e.g. non-ASCII.</td>
+    <td>Label contains at least 1 invalid character. Labels may only contain letters, numerals, parentheses, slashes, underscores, hyphens, or periods, with an optional leading <code>+</code> sign or asterisk.</td>
     <td><green>YES</green></td>
     <td><red>NO</red></td>
   </tr>
@@ -268,15 +280,13 @@ Data errors</p>
     <td><green>YES</green></td>
     <td><green>YES</green></td>
   </tr>
-<!--
   <tr valign="top">
-    <td><a name="US_BANNER"></a><a style="text-decoration:none" href="#US_BANNER">&#x1f517</a></td>
-    <td>US_BANNER</td>
-    <td>Look for USxxxA but not USxxxAlt, B/Bus (others?) Not implemented, commented out.</td>
-    <td><yellow>NO</yellow></td>
-    <td>...</td>
+    <td><a name="US_LETTER"></a><a style="text-decoration:none" href="#US_LETTER">&#x1f517</a></td>
+    <td>US_LETTER</td>
+    <td>Label uses <a href="https://travelmapping.net/devel/manual/wayptlabels.php#bannerafternumber"><code>USxxxA</code> or <code>USxxxB</code> rather than <code>USxxxAlt</code>, <code>USxxxBus</code>, <code>USxxxByp</code>, etc.</td>
+    <td><green>YES</green></td>
+    <td><red>NO</red></td>
   </tr>
--->
   <tr valign="top">
     <td><a name="VISIBLE_DISTANCE"></a><a style="text-decoration:none" href="#VISIBLE_DISTANCE">&#x1f517</a></td>
     <td>VISIBLE_DISTANCE</td>
@@ -287,7 +297,7 @@ Data errors</p>
   <tr valign="top">
     <td><a name="VISIBLE_HIDDEN_COLOC"></a><a style="text-decoration:none" href="#VISIBLE_HIDDEN_COLOC">&#x1f517</a></td>
     <td>VISIBLE_HIDDEN_COLOC</td>
-    <td>The visible waypoint is hidden on concurrent route(s).</td>
+    <td>Visible waypoint is hidden on intersecting/concurrent route(s).</td>
     <td><red>NO</red></td>
     <td><green>YES</green></td>
   </tr>
@@ -345,23 +355,51 @@ Concurrency check</p>
   Highway data managers need to pay attention to check broken concurrencies in their regions. The check can not be done before submitting changes but is currently only possible with the data of the last site update.
   </br>
   </br>
-  The best practise to do this, is as follows:
-  </br>
+  The best practise to do this, is as follows: Load the region graph either with <a href="#concurrencymapview">mapview</a>
+  or with <a href="#concurrencyhdx">HDX</a> and make a manual <a href="#concurrencycheck">check</a>.
+</div>
+
+<p class="subheading"><a name="concurrencymapview"></a><a style="text-decoration:none" href="#concurrencymapview">&#x1f517</a>
+Load graph with mapview</p>
+
+<div class="text">
   <ul>
-    <li>Open the <a href="https://courses.teresco.org/metal/hdx/">Highway Data Examiner</a> (HDX).</li>
+    <li>Open <a href="/user/mapview.php">mapview</a>.</li>
+    <li>Select the region(s) you want to check.</li>
+    <li>Press <code>OK</code>.</li>
+    <li>Select <code>Color by Concurrencies</code> under <code>Visible Routes</code>.</li>
+    <li>Select <code>Highlight All</code>.</li>
+    <li>Zoom-in where you want to check concurrencies.</li>
+  </ul>
+</div>
+
+
+<p class="subheading"><a name="concurrencyhdx"></a><a style="text-decoration:none" href="#concurrencyhdx">&#x1f517</a>
+Load graph with Highway Data Examiner (HDX)</p>
+
+<div class="text">
+  <ul>
+    <li>Open the <a href="https://courses.teresco.org/metal/hdx/?noav">Highway Data Examiner</a> (HDX).</li>
     <li>Go to <code>Option 1</code> on the left and enter the name of the region you want to check.</li>
     <li>Press enter.</li>
     <li>Wait. The graph is automatically loaded after a few seconds but it might take longer with large graphs.</li>
     <ul>
       <li>You might open up a small graph first, e.g. the District of Columbia graph, then deselect <code>Show Markers</code> and select whatever region graph you are actually interested in to speed up loading.</li>
     </ul>
-    <li>Press <code>Done</code> on the left to close the AV table.</li>
     <li>Deselect <code>Show Data Tables</code> to close the table to the right.</li>
     <li>You see a map of the selected region with yellow dots.</li>
     <li>If you hardly see anything but only yellow dots, deselect <code>Show Markers</code>.</li>
     <li>You should see a map of the selected region with <i>funny colors</i> now.</li>
     <li>Select <code>Show Markers</code> again, it was just to show you what happened.</li>
     <li>Zoom-in where you want to check concurrencies.</li>
+  </ul>
+</div>
+
+<p class="subheading"><a name="concurrencycheck"></a><a style="text-decoration:none" href="#concurrencycheck">&#x1f517</a>
+Check for broken concurrencies</p>
+
+<div class="text">
+  <ul>
     <li>The colors are created by lines connecting the waypoints.</li>
     <ul>
       <li><conn1>Blue line = one route only</conn1></li>
@@ -389,8 +427,8 @@ Concurrency check</p>
       </ul>
     </ul>
     <li>When you spot errors, click on the lines or markers to get info about the route and waypoint labels. It is sometimes difficult to click all routes when they are mostly overlapped.</li>
-    <li>Fix the coordinates in the corresponding wpt files.</li>
-    <li>Load the changed wpt files into the <a href="/wptedit/">WPT file editor</a> to avoid causing unintended <a href="#errors">data errors</a>.</li>
+    <li>Fix the coordinates in the corresponding <code>.wpt</code> files.</li>
+    <li>Load the changed <code>.wpt</code> files into the <a href="/wptedit/">WPT file editor</a> to avoid causing unintended <a href="#errors">data errors</a>.</li>
     <li>Broken concurrencies of short segments can hardly be found this way. It is recommended to check <a href="#nearmisspoint"> NMPs</a> to find these errors.</li>
   </ul>
 </div>
@@ -413,7 +451,7 @@ Near-miss points</p>
       <li>If it is blank, the region has no NMPs.</li>
     </ul>
     <li>If there are entries, download the file.</li>
-    <li>Open the <a href="https://courses.teresco.org/metal/hdx/">Highway Data Examiner</a> (HDX).</li>
+    <li>Open the <a href="https://courses.teresco.org/metal/hdx/?noav">Highway Data Examiner</a> (HDX).</li>
     <li>Go to <code>Option 3</code> on the left and select the downloaded nmp file.</li>
     <ul>
       <li>You can see your region with some colored dots on the map now. These are NMP hotspots.</li>
@@ -426,8 +464,8 @@ Near-miss points</p>
     </ul>
     <li>Click on the NMP hotspot lines or their endpoints to get info about the involved routes and waypoint labels.</li>
     <li>Since you only see the points but not the whole network graph, you might need to open another HDX instance on load the region graph from <code>Option 1</code> where you can get the whole picture. To figure out which routes should intersect, what's going on there etc. For instance, it's possible that concurrent routes are only broken on a very short segment you don't see (or missed) with the <code>Option 1</code> view style.</li>
-    <li>Fix the coordinates in the corresponding wpt files.</li>
-    <li>Load the changed wpt files into the <a href="/wptedit/">WPT file editor</a> to avoid causing unintended <a href="#errors">data errors</a>.</li>
+    <li>Fix the coordinates in the corresponding <code>.wpt</code> files.</li>
+    <li>Load the changed <code>.wpt</code> files into the <a href="/wptedit/">WPT file editor</a> to avoid causing unintended <a href="#errors">data errors</a>.</li>
   </ul>
 </div>
 

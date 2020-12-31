@@ -47,7 +47,11 @@
         $row2 = $res2->fetch_assoc();
 
         // write table row
-        echo "<tr><td><a href=\"../hb/showroute.php?r=".$row['route']."&lat=".$row2['latitude']."&lon=".$row2['longitude']."&zoom=17\">".$row['route']."</a></td><td>";
+        echo "<tr><td><a href=\"../hb/showroute.php?r=".$row['route']."&lat=".$row2['latitude']."&lon=".$row2['longitude']."&zoom=17";
+	if (strcmp($row['code'],"DISCONNECTED_ROUTE") == 0) {
+	  echo "&cr";
+	}
+	echo "\">".$row['route']."</a></td><td>";
         if (strcmp($row['label1'],"") != 0) {
           echo $row['label1'];
         }
@@ -57,7 +61,9 @@
         if (strcmp($row['label3'],"") != 0) {
           echo ",".$row['label3'];
         }
+	echo "</td><td><a style=\"color: ";
 	if ((strcmp($row['code'],"BUS_WITH_I") == 0) ||
+	  (strcmp($row['code'],"INTERSTATE_NO_HYPHEN") == 0) ||
 	  (strcmp($row['code'],"INVALID_FINAL_CHAR") == 0) ||
 	  (strcmp($row['code'],"INVALID_FIRST_CHAR") == 0) ||
 	  (strcmp($row['code'],"LABEL_LOOKS_HIDDEN") == 0) ||
@@ -69,15 +75,16 @@
 	  (strcmp($row['code'],"LONG_SEGMENT") == 0) ||
 	  (strcmp($row['code'],"LONG_UNDERSCORE") == 0) ||
 	  (strcmp($row['code'],"NONTERMINAL_UNDERSCORE") == 0) ||
-	  (strcmp($row['code'],"US_BANNER") == 0) ||
+	  (strcmp($row['code'],"US_LETTER") == 0) ||
 	  (strcmp($row['code'],"VISIBLE_HIDDEN_COLOC") == 0) ||
 	  (strcmp($row['code'],"VISIBLE_DISTANCE") == 0)) {
-	  echo "</td><td>".$row['code']."</td><td>";
+	  echo "blue";
 	}
         else {
-	  echo "</td><td style=\"color: red\">".$row['code']."</td><td>";
+	  echo "red";
 
 	}
+	echo "\" href=\"manual/syserr.php#".$row['code']."\">".$row['code']."</a></td><td>";
         if (strcmp($row['value'],"") != 0) {
           echo $row['value'];
         }
